@@ -4,6 +4,6 @@ namespace Monitor_zakupki.Models
 	{
 		public required string[] InnList { get; set; }
 		public required string NotificationEmail { get; set; }
-		public int IntervalHours { get; set; }
+		public double IntervalHours { get; set; }
 	}
 }
