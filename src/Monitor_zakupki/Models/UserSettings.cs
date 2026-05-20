@@ -1,6 +1,9 @@
-class UserSettings
+namespace Monitor_zakupki.Models
 {
-    public string[] InnList {  get; set; }
-    public string NotificationEmail { get; set; }
-    public int IntervalHours { get; set; }
+	public class UserSettings
+	{
+		public required string[] InnList { get; set; }
+		public required string NotificationEmail { get; set; }
+		public int IntervalHours { get; set; }
+	}
 }
