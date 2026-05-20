@@ -1,19 +1,19 @@
 {
-  "userSettings": {
-    "inn_list": [],
-    "email_to_send": "",
-    "intervalHours": 1
+  "UserSettings": {
+    "InnList": [],
+    "NotificationEmail": "",
+    "IntervalHours": 1
 
   },
 
-  "mainSettings": {
+  "MainSettings": {
     "email": {
-      "smtpServer": "smtp.example.com",
-      "port": 587,
-      "login": "user@example.com",
-      "password": "password",
-      "from": "user@example.com"
+      "SmtpServer": "smtp.example.com",
+      "SmtpPort": 587,
+      "SmtpLogin": "user@example.com",
+      "SmtpPassword": "password",
+      "SmtpFrom": "user@example.com"
     },
-    "path_to_log": "monitoring_logs/log/logs.txt"
+    "PathToLog": "monitoring_logs/log/logs.txt"
   }
 }
