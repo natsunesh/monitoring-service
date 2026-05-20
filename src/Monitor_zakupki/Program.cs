@@ -13,7 +13,10 @@ builder.Services.AddHostedService<Worker>();
 
 builder.Configuration.AddJsonFile("config/app-config.json", optional: false, reloadOnChange: true);
 
+
 builder.Services.AddTransient<INotificationService, NotificationService>();
+builder.Services.AddTransient<IProcurementParserService, FakeProcurementParserService>();
+
 
 builder.Services.Configure<UserSettings>(
     builder.Configuration.GetSection("UserSettings"));

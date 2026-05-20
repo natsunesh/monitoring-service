@@ -12,17 +12,20 @@ namespace Monitor_zakupki
         private readonly UserSettings _userSettings;
         private readonly MainSettings _mainSettings;
         private readonly INotificationService _notificationService;
+        private readonly IProcurementParserService _parserService;
 
         public Worker(
         ILogger<Worker> logger,
         IOptions<UserSettings> userSettings,
         IOptions<MainSettings> mainSettings,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IProcurementParserService parserService)
         {
             _logger = logger;
             _userSettings = userSettings.Value;
             _mainSettings = mainSettings.Value;
             _notificationService = notificationService;
+            _parserService = parserService;
         }
 
 
@@ -50,7 +53,11 @@ namespace Monitor_zakupki
 
         private async Task RunOnceAsync(CancellationToken stoppingToken, int iteration = 0)
         {
-            await _notificationService.SendAsync($"Test notification, iteration {iteration}", stoppingToken);
+            var items = await _parserService.GetNewProcurementsAsync(stoppingToken);
+            if (items.Count > 0)
+            {
+                await _notificationService.SendAsync($"Найдено новых закупок: {items.Count}", stoppingToken);
+            }
         }
 
 
