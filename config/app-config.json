@@ -15,6 +15,6 @@
       "SmtpFrom": "user@example.com"
     },
     "PathToLog": "monitoring_logs/log/logs.txt",
-    "test": true
+    "test": false
   }
 }

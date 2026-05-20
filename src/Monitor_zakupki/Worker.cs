@@ -44,11 +44,21 @@ namespace Monitor_zakupki
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     await RunOnceAsync(stoppingToken, iteration++);
-                    await Task.Delay(TimeSpan.FromHours(_userSettings.IntervalHours), stoppingToken);
+
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromHours(_userSettings.IntervalHours), stoppingToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        _logger.LogInformation("Stoping program");
+                        break;
+
+                    }
                 }
             }
 
-            _logger.LogInformation("Stoping program");
+            
         }
 
         private async Task RunOnceAsync(CancellationToken stoppingToken, int iteration = 0)
