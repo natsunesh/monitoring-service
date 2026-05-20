@@ -2,7 +2,7 @@
   "UserSettings": {
     "InnList": [],
     "NotificationEmail": "",
-    "IntervalHours": 1
+    "IntervalHours": 0.001
 
   },
 
@@ -14,6 +14,7 @@
       "SmtpPassword": "password",
       "SmtpFrom": "user@example.com"
     },
-    "PathToLog": "monitoring_logs/log/logs.txt"
+    "PathToLog": "monitoring_logs/log/logs.txt",
+    "test": false
   }
 }

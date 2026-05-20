@@ -14,6 +14,7 @@ namespace Monitor_zakupki.Models
     {
         public EmailSettings? Email { get; set; }
         public string? PathToLog { get; set; }
+        public bool Test { get; set; }
     }
 }
 

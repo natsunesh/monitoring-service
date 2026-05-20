@@ -29,17 +29,31 @@ namespace Monitor_zakupki
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            int iteration = 0;
             _logger.LogInformation("Start program");
-            while (!stoppingToken.IsCancellationRequested)
+
+            if (_mainSettings.Test)
             {
-                await _notificationService.SendAsync($"Test notification, iteration {iteration++}", stoppingToken); 
-                await Task.Delay(TimeSpan.FromHours(_userSettings.IntervalHours), stoppingToken);
+                await RunOnceAsync(stoppingToken);
             }
-            _logger.LogInformation("stoping program");
+            else
+            {
+                int iteration = 0;
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    await RunOnceAsync(stoppingToken, iteration++);
+                    await Task.Delay(TimeSpan.FromHours(_userSettings.IntervalHours), stoppingToken);
+                }
+            }
+
+            _logger.LogInformation("Stoping program");
         }
 
-        
+        private async Task RunOnceAsync(CancellationToken stoppingToken, int iteration = 0)
+        {
+            await _notificationService.SendAsync($"Test notification, iteration {iteration}", stoppingToken);
+        }
+
+
 
     }
 }
