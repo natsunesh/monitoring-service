@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace Monitor_zakupki.Models
 {
     public record ProcurementItem(
@@ -5,5 +6,13 @@ namespace Monitor_zakupki.Models
         string Inn,
         string Name,
         string Url,
-        DateTime Date);
+        string Date);
+    public class SavedHTML
+    {
+        [JsonPropertyName("inn")]
+        public string Inn { get; set; }
+
+        [JsonPropertyName("raw_html")]
+        public string RawHtml { get; set; }
+    }
 }
