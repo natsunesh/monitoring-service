@@ -2,8 +2,8 @@ namespace Monitor_zakupki.Models
 {
     public record ProcurementItem(
         string Number,
-        string Description,
-        DateTime Date,
+        string Inn,
+        string Name,
         string Url,
-        string Status);
+        DateTime Date);
 }
