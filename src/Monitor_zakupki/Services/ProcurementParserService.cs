@@ -24,7 +24,7 @@ namespace htmlparse
             try
             {
                 await CheckSavedHTML();
-                var items = JsonSerializer.Deserialize<List<SavedHTML>>(File.ReadAllText(FilePathToSavedHtml)); ;
+                var items = JsonSerializer.Deserialize<List<SavedHTML>>(File.ReadAllText(FilePathToSavedHtml));
                 foreach (var item in items)
                 {
                     var RawHtmlFromFile = item.RawHtml;
