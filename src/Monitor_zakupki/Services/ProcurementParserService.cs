@@ -1,17 +1,22 @@
 using HtmlAgilityPack;
-using Monitor_zakupki.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
+using Monitor_zakupki.Interfaces;
+using Monitor_zakupki.Models;
+
 
 namespace htmlparse
 {
     public class ProcurementParserService : IProcurementParserService
     {
-        string FilePathToAppConfig, FilePathToLogs, FilePathToSavedHtml;
+        private readonly ILogger<ProcurementParserService> Logger;
+        private readonly string FilePathToAppConfig, FilePathToLogs, FilePathToSavedHtml;
 
-        public ProcurementParserService(string filePathToAppConfig, string filePathToLogs, string filePathToSavedHtml)
+        public ProcurementParserService(ILogger<ProcurementParserService> logger, string filePathToAppConfig, string filePathToLogs, string filePathToSavedHtml)
         {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             FilePathToAppConfig = filePathToAppConfig ?? throw new ArgumentNullException(nameof(filePathToAppConfig));
             FilePathToLogs = filePathToLogs ?? throw new ArgumentNullException(nameof(filePathToLogs));
             FilePathToSavedHtml = filePathToSavedHtml ?? throw new ArgumentNullException(nameof(filePathToSavedHtml));
@@ -68,10 +73,6 @@ namespace htmlparse
                                 }
                             }
                         }
-                        else
-                        {
-                            Console.WriteLine("Элементы с указанным классом не найдены.");
-                        }
                         item.RawHtml = RawHtmlFromSite;
                     }
                 }
@@ -79,7 +80,15 @@ namespace htmlparse
                 File.WriteAllText(FilePathToSavedHtml, json);
                 return procurementItems;
             }
-            catch (Exception ex) { Console.WriteLine(ex.Message); return procurementItems; }
+            catch (OperationCanceledException)
+            {
+                Logger.LogError("Парсинг страницы отменён.")
+            }
+            catch (Exception ex) {
+                Logger.LogError($"Ошибка парсера: {ex}", ex);
+                File.AppendAllText(FilePathToLogs, $"{DateTime.Now.ToString()} Ошибка парсера: {ex}");
+                return procurementItems;
+            }
         }
         protected Task<ProcurementItem> SetProcurementItem(string Number, string Inn, string Name, string Url, string Date)
         {
@@ -95,43 +104,52 @@ namespace htmlparse
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка: {ex.Message}");
+                Logger.LogError($"Ошибка чтения заказа {Number}: {ex}", ex);
+                File.AppendAllText(FilePathToLogs, $"{DateTime.Now.ToString()} Ошибка чтения заказа {Number}: {ex}");
                 return null;
             }
         }
 
-        protected async Task CheckSavedHTML()
+        private async Task CheckSavedHTML()
         {
-            var SavedHTML = JsonSerializer.Deserialize<List<SavedHTML>>(File.ReadAllText(FilePathToSavedHtml));
-            string _userSettings = File.ReadAllText(FilePathToAppConfig);
-            var root = JsonSerializer.Deserialize<RootSettings>(_userSettings);
-            string[] innList = root.UserSettings.InnList;
-            if (SavedHTML.Count < innList.Length)
+            try
             {
-                for (int i = SavedHTML.Count; i < innList.Length; i++)
+                var SavedHTML = JsonSerializer.Deserialize<List<SavedHTML>>(File.ReadAllText(FilePathToSavedHtml));
+                string _userSettings = File.ReadAllText(FilePathToAppConfig);
+                var root = JsonSerializer.Deserialize<RootSettings>(_userSettings);
+                string[] innList = root.UserSettings.InnList;
+                if (SavedHTML.Count < innList.Length)
                 {
-                    SavedHTML.Add(new SavedHTML());
+                    for (int i = SavedHTML.Count; i < innList.Length; i++)
+                    {
+                        SavedHTML.Add(new SavedHTML());
+                    }
                 }
-            }
 
-            for (int i = 0; i < innList.Length; i++)
-            {
-                var item = SavedHTML[i];
-
-                if (item.Inn != innList[i])
+                for (int i = 0; i < innList.Length; i++)
                 {
-                    item.Inn = innList[i];
-                    item.RawHtml = await DownloadHtmlSilentlyAsync($"https://zakupki.gov.ru/epz/orderplan/search/results.html?searchString={item.Inn}&morphology=on&search-filter=Дате+размещения&structuredCheckBox=on&structured=true&notStructured=false&fz44=on&fz223=on&actualPeriodRangeYearFrom=2020&sortBy=BY_MODIFY_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_10&showLotsInfoHidden=false&searchType=false");
-                }
-                Console.WriteLine(item.Inn);
-            }
+                    var item = SavedHTML[i];
 
-            string json = JsonSerializer.Serialize(SavedHTML);
-            File.WriteAllText(FilePathToSavedHtml, json);
+                    if (item.Inn != innList[i])
+                    {
+                        item.Inn = innList[i];
+                        item.RawHtml = await DownloadHtmlSilentlyAsync($"https://zakupki.gov.ru/epz/orderplan/search/results.html?searchString={item.Inn}&morphology=on&search-filter=Дате+размещения&structuredCheckBox=on&structured=true&notStructured=false&fz44=on&fz223=on&actualPeriodRangeYearFrom=2020&sortBy=BY_MODIFY_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_10&showLotsInfoHidden=false&searchType=false");
+                    }
+                    Console.WriteLine(item.Inn);
+                }
+
+                string json = JsonSerializer.Serialize(SavedHTML);
+                File.WriteAllText(FilePathToSavedHtml, json);
+            }
+            catch (Exception ex) {
+                Logger.LogError($"Ошибка проверки сохранённого html: {ex}", ex);
+                File.AppendAllText(FilePathToLogs, $"{DateTime.Now.ToString()} Ошибка проверки сохранённого html: {ex}");
+                throw;
+            }
         }
 
 
-        static async Task<string> DownloadHtmlSilentlyAsync(string url)
+        private static async Task<string> DownloadHtmlSilentlyAsync(string url)
         {
             using (HttpClient client = new HttpClient())
             {
