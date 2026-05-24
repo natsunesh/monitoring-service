@@ -9,8 +9,8 @@ namespace Monitor_zakupki.Services
         {
             var items = new List<ProcurementItem>
             {
-                new("123-001", "Поставка офисной бумаги", DateTime.Now.Date, "https://example.com/1", "new"),
-                new("123-002", "Поставка картриджей", DateTime.Now.Date, "https://example.com/2", "new")
+                new("123-001", "7728168971", "Поставка офисной бумаги", DateTime.Now.Date),
+                new("123-002", "7736050003", "Поставка картриджей", DateTime.Now.Date)
             };
 
             return Task.FromResult(items);
