@@ -1,20 +1,10 @@
 {
-  "UserSettings": {
-    "InnList": [],
-    "NotificationEmail": "",
-    "IntervalHours": 0.001
-
-  },
-
-  "MainSettings": {
-    "email": {
-      "SmtpServer": "smtp.example.com",
-      "SmtpPort": 587,
-      "SmtpLogin": "user@example.com",
-      "SmtpPassword": "password",
-      "SmtpFrom": "user@example.com"
-    },
-    "PathToLog": "monitoring_logs/log/logs.txt",
-    "test": true
-  }
+  "interval_hours": 1,
+  "emails": [
+    "zakupki@example.com"
+  ],
+  "inn_list": [
+    "7728168971"
+  ],
+  "history": []
 }
