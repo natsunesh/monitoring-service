@@ -2,11 +2,14 @@ using Monitor_zakupki;
 using Monitor_zakupki.Models;
 using Monitor_zakupki.Interfaces;
 using Monitor_zakupki.Services;
+using Microsoft.Extensions.Hosting.WindowsServices;
 
 var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
 {
     ContentRootPath = AppContext.BaseDirectory
 });
+
+builder.Host.UseWindowsService();
 
 builder.Configuration.AddJsonFile("config/app-config.json", optional: false, reloadOnChange: true);
 
