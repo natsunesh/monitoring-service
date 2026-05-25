@@ -49,14 +49,13 @@ namespace Monitor_zakupki
             }
             else
             {
-                // Счётчик итераций, чтобы можно было отслеживать количество проходов. Убрать в будущем
-                int iteration = 0;
+                
 
                 // Основной цикл службы: работает, пока не придёт сигнал остановки (ctrl+c)
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     // Один проход проверки закупок
-                    await RunOnceAsync(stoppingToken, iteration++);
+                    await RunOnceAsync(stoppingToken);
 
                     try
                     {
@@ -66,17 +65,16 @@ namespace Monitor_zakupki
                     catch (OperationCanceledException)
                     {
                         // Если службу остановили во время ожидания, выходим из цикла
-                        _logger.LogInformation("Stoping program");
                         break;
                     }
                 }
             }
 
             // Если вышли не через catch, то лог завершения всё равно должен быть виден
-            _logger.LogInformation("Stoping program");
+            _logger.LogInformation("Stopping program");
         }
 
-        private async Task RunOnceAsync(CancellationToken stoppingToken, int iteration = 0)
+        private async Task RunOnceAsync(CancellationToken stoppingToken)
         {
             // Получаем список новых закупок от парсера
             var items = await _parserService.GetNewProcurementsAsync(stoppingToken);
