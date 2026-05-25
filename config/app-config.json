@@ -7,7 +7,7 @@
   },
 
   "MainSettings": {
-    "email": {
+    "Email": {
       "SmtpServer": "smtp.example.com",
       "SmtpPort": 587,
       "SmtpLogin": "user@example.com",
@@ -15,6 +15,6 @@
       "SmtpFrom": "user@example.com"
     },
     "PathToLog": "monitoring_logs/log/logs.txt",
-    "test": true
+    "Test": true
   }
 }

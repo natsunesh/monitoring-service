@@ -9,7 +9,7 @@ var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
     ContentRootPath = AppContext.BaseDirectory
 });
 
-builder.Host.UseWindowsService();
+builder.Services.AddWindowsService();
 
 builder.Configuration.AddJsonFile("config/app-config.json", optional: false, reloadOnChange: true);
 
