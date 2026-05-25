@@ -45,11 +45,12 @@ namespace Monitor_zakupki
             // Если включён тестовый режим, выполняем один проход и завершаемся
             if (_mainSettings.Test)
             {
+                _logger.LogInformation("Test mode enabled. Running once and stopping.");
                 await RunOnceAsync(stoppingToken);
             }
             else
             {
-                
+                _logger.LogInformation("Normal mode enabled. Service will run in loop.");
 
                 // Основной цикл службы: работает, пока не придёт сигнал остановки (ctrl+c)
                 while (!stoppingToken.IsCancellationRequested)
@@ -76,10 +77,12 @@ namespace Monitor_zakupki
 
         private async Task RunOnceAsync(CancellationToken stoppingToken)
         {
-            // Получаем список новых закупок от парсера
+            _logger.LogInformation("Checking procurements...");
+
             var items = await _parserService.GetNewProcurementsAsync(stoppingToken);
 
-            // Если закупки найдены, отправляем уведомление
+            _logger.LogInformation("Check finished. Found {Count} items.", items.Count);
+
             if (items.Count > 0)
             {
                 await _notificationService.SendAsync($"Найдено новых закупок: {items.Count}", stoppingToken);
