@@ -11,10 +11,10 @@ namespace htmlparse
 {
     public class ProcurementParserService : IProcurementParserService
     {
-        private readonly ILogger<ProcurementParserService> Logger;
+        private readonly ILogger<NotificationService> Logger;
         private readonly string FilePathToAppConfig, FilePathToLogs, FilePathToSavedHtml;
 
-        public ProcurementParserService(ILogger<ProcurementParserService> logger, string filePathToAppConfig, string filePathToLogs, string filePathToSavedHtml)
+        public ProcurementParserService(ILogger<NotificationService> logger, string filePathToAppConfig, string filePathToLogs, string filePathToSavedHtml)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             FilePathToAppConfig = filePathToAppConfig ?? throw new ArgumentNullException(nameof(filePathToAppConfig));
@@ -82,9 +82,11 @@ namespace htmlparse
             }
             catch (OperationCanceledException)
             {
-                Logger.LogError("Парсинг страницы отменён.")
+                Logger.LogError("Парсинг страницы отменён.");
+                return procurementItems;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Logger.LogError($"Ошибка парсера: {ex}", ex);
                 File.AppendAllText(FilePathToLogs, $"{DateTime.Now.ToString()} Ошибка парсера: {ex}");
                 return procurementItems;
