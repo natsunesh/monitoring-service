@@ -120,6 +120,10 @@ namespace htmlparse
                 string _userSettings = File.ReadAllText(FilePathToAppConfig);
                 var root = JsonSerializer.Deserialize<RootSettings>(_userSettings);
                 string[] innList = root.UserSettings.InnList;
+                if (SavedHTML.Count > innList.Length)
+                {
+                    SavedHTML.RemoveRange(innList.Length, SavedHTML.Count - innList.Length);
+                }
                 if (SavedHTML.Count < innList.Length)
                 {
                     for (int i = SavedHTML.Count; i < innList.Length; i++)
