@@ -1,18 +1,6 @@
 {
-  "version": "1.0",
-  "interval_hours": 1,
-  "selectors": {
-    "css": {
-      "purchase_card": ".search-results__item",
-      "purchase_id": ".registry-entry__header-top__number a",
-      "purchase_name": ".registry-entry__body-title",
-      "purchase_price": ".registry-entry__price .price",
-      "publisher_inn": ".registry-entry__customer-info .inn",
-      "purchase_link": ".registry-entry__header-top__number a",
-      "purchase_date": ".registry-entry__header-top__date"
-    },
-    "xpath": {}
-  },
+  
+  
   "emails": [
     "admin@localhost"
   ],
