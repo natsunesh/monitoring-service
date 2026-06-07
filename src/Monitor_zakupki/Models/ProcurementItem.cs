@@ -3,16 +3,8 @@ namespace Monitor_zakupki.Models
 {
     public record ProcurementItem(
         string Number,
-        string Inn,
-        string Name,
+        string Description,
+        DateTime Date,
         string Url,
-        string Date);
-    public class SavedHTML
-    {
-        [JsonPropertyName("inn")]
-        public string Inn { get; set; }
-
-        [JsonPropertyName("raw_html")]
-        public string RawHtml { get; set; }
-    }
+        string Status);
 }
