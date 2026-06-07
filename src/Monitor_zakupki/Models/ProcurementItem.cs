@@ -7,12 +7,13 @@ namespace Monitor_zakupki.Models
         string Name,
         string Url,
         string Date);
+
     public class SavedHTML
     {
         [JsonPropertyName("inn")]
-        public string Inn { get; set; }
+        public string Inn { get; set; } = string.Empty;
 
         [JsonPropertyName("raw_html")]
-        public string RawHtml { get; set; }
+        public string RawHtml { get; set; } = string.Empty;
     }
 }

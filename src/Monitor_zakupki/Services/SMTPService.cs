@@ -46,21 +46,21 @@ namespace Monitor_zakupki.Services
 
                 _pi = await _parserService.GetNewProcurementsAsync(cancellationToken);
 
-                if (_pi.Count != null)
+                if (_pi.Count > 0)
                 {
                     foreach (var pi in _pi)
                     {
                         using (MailMessage mailMessage = new MailMessage())
                         {
                             mailMessage.From = new MailAddress(smtpName);
-                            mailMessage.To.Add(root.MainSettings.email.SmtpFrom.ToString());
+                            mailMessage.To.Add(root.UserSettings.NotificationEmail);
                             mailMessage.Subject = $"Поступила новая закупка от {pi.Name}";
                             mailMessage.Body = $"Наименование организации: {pi.Name}\n ИНН: {pi.Inn}\n Номер закупки: {pi.Number}\n Ссылка: {pi.Url}\n  Дата размещения: {pi.Date}";
 
                             try
                             {
                                 smtpClient.Send(mailMessage);
-                                File.AppendAllText(FilePathToLogs, $"{DateTime.Now.ToString()} Сообщение отправлено на {root.MainSettings.email.SmtpTo}");
+                                File.AppendAllText(FilePathToLogs, $"{DateTime.Now} Сообщение отправлено на {root.UserSettings.NotificationEmail}");
                             }
                             catch(Exception ex) 
                             {

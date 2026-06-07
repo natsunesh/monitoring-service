@@ -24,7 +24,10 @@ builder.Logging.AddNLog();
 
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
-builder.Services.AddTransient<IProcurementParserService, FakeProcurementParserService>();
+
+builder.Services.Configure<ParserOptions>(
+    builder.Configuration.GetSection("ParserOptions"));
+builder.Services.AddTransient<IProcurementParserService, ProcurementParserService>();
 
 builder.Services.Configure<UserSettings>(builder.Configuration.GetSection("UserSettings"));
 builder.Services.Configure<MainSettings>(builder.Configuration.GetSection("MainSettings"));

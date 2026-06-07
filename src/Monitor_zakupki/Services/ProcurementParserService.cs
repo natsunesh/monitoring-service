@@ -5,6 +5,8 @@ using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using Monitor_zakupki.Interfaces;
 using Monitor_zakupki.Models;
+using Microsoft.Extensions.Options;
+
 
 
 namespace Monitor_zakupki.Services
@@ -15,12 +17,13 @@ namespace Monitor_zakupki.Services
         private readonly ILogger<NotificationService> Logger;
         private readonly string FilePathToAppConfig, FilePathToLogs, FilePathToSavedHtml;
 
-        public ProcurementParserService(ILogger<NotificationService> logger, string filePathToAppConfig, string filePathToLogs, string filePathToSavedHtml)
+        public ProcurementParserService(ILogger<NotificationService> logger,IOptions<ParserOptions> options)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            FilePathToAppConfig = filePathToAppConfig ?? throw new ArgumentNullException(nameof(filePathToAppConfig));
-            FilePathToLogs = filePathToLogs ?? throw new ArgumentNullException(nameof(filePathToLogs));
-            FilePathToSavedHtml = filePathToSavedHtml ?? throw new ArgumentNullException(nameof(filePathToSavedHtml));
+            var p = options.Value ?? throw new ArgumentNullException(nameof(options));
+            FilePathToAppConfig = p.FilePathToAppConfig;
+            FilePathToLogs = p.FilePathToLogs;
+            FilePathToSavedHtml = p.FilePathToSavedHtml;
         }
 
         public async Task<List<ProcurementItem>> GetNewProcurementsAsync(CancellationToken cancellationToken = default)

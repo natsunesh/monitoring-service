@@ -3,9 +3,7 @@
     "InnList": [],
     "NotificationEmail": "",
     "IntervalHours": 0.001
-
   },
-
   "MainSettings": {
     "Email": {
       "SmtpServer": "smtp.example.com",
@@ -15,6 +13,11 @@
       "SmtpFrom": "user@example.com"
     },
     "PathToLog": "monitoring_logs/logs.txt",
-    "Test": false
+    "Test": true
+  },
+  "ParserOptions": {
+    "FilePathToAppConfig": "config/app-config.json",
+    "FilePathToLogs": "monitring_log/Logs.txt",
+    "FilePathToSavedHtml": "config/saved-html.json"
   }
 }
