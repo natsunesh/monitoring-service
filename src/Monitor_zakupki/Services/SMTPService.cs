@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Monitor_zakupki.Models;
-using Monitor_zakupki.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Monitor_zakupki.Services;
-using htmlparse;
 
 namespace Monitor_zakupki.Services
 {
