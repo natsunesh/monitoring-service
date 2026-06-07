@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Monitor_zakupki.Services;
 using htmlparse;
 
-namespace ConsoleApp10.src.Monitor_zakupki.Services
+namespace Monitor_zakupki.Services
 {
     internal class SMTPService
     {
