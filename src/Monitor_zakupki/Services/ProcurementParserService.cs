@@ -7,7 +7,8 @@ using Monitor_zakupki.Interfaces;
 using Monitor_zakupki.Models;
 
 
-namespace htmlparse
+namespace Monitor_zakupki.Services
+
 {
     public class ProcurementParserService : IProcurementParserService
     {
