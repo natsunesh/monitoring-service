@@ -1,6 +1,7 @@
 using Monitor_zakupki.Models;
 using Monitor_zakupki.Interfaces;
 using Monitor_zakupki.Services;
+using System.Text;
 
 using Microsoft.Extensions.Options;
 
@@ -68,7 +69,7 @@ namespace Monitor_zakupki
                         // Если службу остановили во время ожидания, выходим из цикла
                         break;
                     }
-                }
+                }   
             }
 
             // Если вышли не через catch, то лог завершения всё равно должен быть виден
@@ -85,7 +86,21 @@ namespace Monitor_zakupki
 
             if (items.Count > 0)
             {
-                await _notificationService.SendAsync($"Найдено новых закупок: {items.Count}", stoppingToken);
+                var message = new StringBuilder();
+                message.AppendLine($"Найдено новых закупок: {items.Count}");
+                message.AppendLine();
+
+                foreach (var pi in items)
+                {
+                    message.AppendLine($"Наименование организации: {pi.Name}");
+                    message.AppendLine($"ИНН: {pi.Inn}");
+                    message.AppendLine($"Номер закупки: {pi.Number}");
+                    message.AppendLine($"Ссылка: {pi.Url}");
+                    message.AppendLine($"Дата размещения: {pi.Date}");
+                    message.AppendLine();
+                }
+
+                await _notificationService.SendAsync(message.ToString(), stoppingToken);
             }
         }
     }

@@ -1,7 +1,6 @@
 {
   "UserSettings": {
-    "InnList": [ "5402084384" ],
-    "NotificationEmail": "",
+    "InnList": [ "7728168971" ],
     "IntervalHours": 0.001
   },
   "MainSettings": {
@@ -12,7 +11,6 @@
       "SmtpPassword": "kGwamETjugUSu0I8m5VK",
       "SmtpTo": "efanov.vladislaw@yandex.ru"
     },
-    "PathToLog": "monitoring_logs/logs.txt",
     "Test": true
   },
   "ParserOptions": {

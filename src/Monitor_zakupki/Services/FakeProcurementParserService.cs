@@ -9,7 +9,7 @@ namespace Monitor_zakupki.Services
         {
             var items = new List<ProcurementItem>
             {
-                new("123-001","7728168971","Поставка офисной бумаги","https://example.com/1","2026-06-07"),
+                new("123-002","7728168971","крупная сделка","https://example.com/1","2026-06-10"),
             };
 
             return Task.FromResult(items);

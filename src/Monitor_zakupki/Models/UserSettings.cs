@@ -4,6 +4,7 @@ namespace Monitor_zakupki.Models
     {
         public UserSettings UserSettings { get; set; } = new();
         public MainSettings MainSettings { get; set; } = new();
+        public ParserOptions ParserOptions { get; set; } = new();
     }
 
     public class UserSettings
@@ -15,7 +16,7 @@ namespace Monitor_zakupki.Models
 
     public class MainSettings
     {
-        public EmailSettings email { get; set; } = new();
+        public EmailSettings Email { get; set; } = new();
         public string PathToLog { get; set; } = string.Empty;
         public bool Test { get; set; }
     }
@@ -26,6 +27,8 @@ namespace Monitor_zakupki.Models
         public int SmtpPort { get; set; }
         public string SmtpLogin { get; set; } = string.Empty;
         public string SmtpPassword { get; set; } = string.Empty;
-        public string SmtpFrom { get; set; } = string.Empty;
+        public string SmtpTo { get; set; } = string.Empty;
     }
+
+
 }
