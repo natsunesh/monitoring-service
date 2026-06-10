@@ -1,16 +1,16 @@
 {
   "UserSettings": {
-    "InnList": [],
+    "InnList": [ "5402084384" ],
     "NotificationEmail": "",
     "IntervalHours": 0.001
   },
   "MainSettings": {
     "Email": {
-      "SmtpServer": "smtp.example.com",
+      "SmtpServer": "smtp.mail.ru",
       "SmtpPort": 587,
-      "SmtpLogin": "user@example.com",
-      "SmtpPassword": "password",
-      "SmtpFrom": "user@example.com"
+      "SmtpLogin": "chavgun99@bk.ru",
+      "SmtpPassword": "kGwamETjugUSu0I8m5VK",
+      "SmtpTo": "efanov.vladislaw@yandex.ru"
     },
     "PathToLog": "monitoring_logs/logs.txt",
     "Test": true
