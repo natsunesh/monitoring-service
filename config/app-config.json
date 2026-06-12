@@ -11,7 +11,7 @@
       "SmtpPassword": "kGwamETjugUSu0I8m5VK",
       "SmtpTo": "efanov.vladislaw@yandex.ru"
     },
-    "Test": 
+    "Test": true
   },
   "ParserOptions": {
     "FilePathToAppConfig": "config/app-config.json",

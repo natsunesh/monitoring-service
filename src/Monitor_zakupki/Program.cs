@@ -7,7 +7,7 @@ using NLog;
 using NLog.Config;
 using NLog.Extensions.Logging;
 
-LogManager.Setup().LoadConfigurationFromFile("nlog.config");
+LogManager.Setup().LoadConfigurationFromFile(Path.Combine(AppContext.BaseDirectory, "nlog.config"));
 
 var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
 {
@@ -16,7 +16,9 @@ var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
 
 builder.Services.AddWindowsService();
 
-builder.Configuration.AddJsonFile("config/app-config.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "config/app-config.json"),
+    optional: false,
+    reloadOnChange: true);
 
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);

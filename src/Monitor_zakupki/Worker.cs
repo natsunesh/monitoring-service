@@ -9,19 +9,10 @@ namespace Monitor_zakupki
 {
     public class Worker : BackgroundService
     {
-        // Логгер для записи событий работы службы
         private readonly ILogger<Worker> _logger;
-
-        // Настройки пользователя: ИНН, email, интервал проверки и т.д.
         private readonly UserSettings _userSettings;
-
-        // Главные настройки: test-режим, путь к логам и т.п.
         private readonly MainSettings _mainSettings;
-
-        // Сервис уведомлений, который отправляет сообщение о найденных закупках
         private readonly INotificationService _notificationService;
-
-        // Сервис парсинга закупок
         private readonly IProcurementParserService _parserService;
 
         public Worker(
@@ -40,40 +31,42 @@ namespace Monitor_zakupki
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // Старт службы
-            _logger.LogInformation("Start program");
-
-            // Если включён тестовый режим, выполняем один проход и завершаемся
-            if (_mainSettings.Test)
+            try
             {
-                _logger.LogInformation("Test mode enabled. Running once and stopping.");
-                await RunOnceAsync(stoppingToken);
-            }
-            else
-            {
-                _logger.LogInformation("Normal mode enabled. Service will run in loop.");
+                _logger.LogInformation("Start program");
 
-                // Основной цикл службы: работает, пока не придёт сигнал остановки (ctrl+c)
-                while (!stoppingToken.IsCancellationRequested)
+                if (_mainSettings.Test)
                 {
-                    // Один проход проверки закупок
+                    _logger.LogInformation("Test mode enabled. Running once and stopping.");
                     await RunOnceAsync(stoppingToken);
+                }
+                else
+                {
+                    _logger.LogInformation("Normal mode enabled. Service will run in loop.");
 
-                    try
+                    while (!stoppingToken.IsCancellationRequested)
                     {
-                        // Пауза между проверками, интервал берётся из настроек
-                        await Task.Delay(TimeSpan.FromHours(_userSettings.IntervalHours), stoppingToken);
+                        await RunOnceAsync(stoppingToken);
+
+                        var delay = TimeSpan.FromHours(_userSettings.IntervalHours);
+                        if (delay <= TimeSpan.Zero)
+                            delay = TimeSpan.FromMinutes(1);
+
+                        await Task.Delay(delay, stoppingToken);
                     }
-                    catch (OperationCanceledException)
-                    {
-                        // Если службу остановили во время ожидания, выходим из цикла
-                        break;
-                    }
-                }   
+                }
+
+                _logger.LogInformation("Stopping program");
             }
-
-            // Если вышли не через catch, то лог завершения всё равно должен быть виден
-            _logger.LogInformation("Stopping program");
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Service cancellation requested.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Worker failed unexpectedly");
+                throw;
+            }
         }
 
         private async Task RunOnceAsync(CancellationToken stoppingToken)
@@ -84,24 +77,24 @@ namespace Monitor_zakupki
 
             _logger.LogInformation("Check finished. Found {Count} items.", items.Count);
 
-            if (items.Count > 0)
+            if (items.Count == 0)
+                return;
+
+            var message = new StringBuilder();
+            message.AppendLine($"Найдена закупка");
+            message.AppendLine();
+
+            foreach (var pi in items)
             {
-                var message = new StringBuilder();
-                message.AppendLine($"Найдено новых закупок: {items.Count}");
+                message.AppendLine($"Наименование организации: {pi.Name}");
+                message.AppendLine($"ИНН: {pi.Inn}");
+                message.AppendLine($"Номер закупки: {pi.Number}");
+                message.AppendLine($"Ссылка: {pi.Url}");
+                message.AppendLine($"Дата размещения: {pi.Date}");
                 message.AppendLine();
-
-                foreach (var pi in items)
-                {
-                    message.AppendLine($"Наименование организации: {pi.Name}");
-                    message.AppendLine($"ИНН: {pi.Inn}");
-                    message.AppendLine($"Номер закупки: {pi.Number}");
-                    message.AppendLine($"Ссылка: {pi.Url}");
-                    message.AppendLine($"Дата размещения: {pi.Date}");
-                    message.AppendLine();
-                }
-
-                await _notificationService.SendAsync(message.ToString(), stoppingToken);
             }
+
+            await _notificationService.SendAsync(message.ToString(), stoppingToken);
         }
     }
 }
