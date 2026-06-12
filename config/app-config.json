@@ -11,11 +11,11 @@
       "SmtpPassword": "kGwamETjugUSu0I8m5VK",
       "SmtpTo": "efanov.vladislaw@yandex.ru"
     },
-    "Test": true
+    "Test": 
   },
   "ParserOptions": {
     "FilePathToAppConfig": "config/app-config.json",
-    "FilePathToLogs": "monitring_log/Logs.txt",
+    "FilePathToLogs": "monitoring_log/Logs.txt",
     "FilePathToSavedHtml": "config/saved-html.json"
   }
 }

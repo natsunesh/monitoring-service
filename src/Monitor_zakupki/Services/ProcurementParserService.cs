@@ -14,10 +14,10 @@ namespace Monitor_zakupki.Services
 {
     public class ProcurementParserService : IProcurementParserService
     {
-        private readonly ILogger<NotificationService> Logger;
+        private readonly ILogger<ProcurementParserService> Logger;
         private readonly string FilePathToAppConfig, FilePathToLogs, FilePathToSavedHtml;
 
-        public ProcurementParserService(ILogger<NotificationService> logger,IOptions<ParserOptions> options)
+        public ProcurementParserService(ILogger<ProcurementParserService> logger, IOptions<ParserOptions> options)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             var p = options.Value ?? throw new ArgumentNullException(nameof(options));
@@ -170,6 +170,13 @@ namespace Monitor_zakupki.Services
 
                 return await response.Content.ReadAsStringAsync();
             }
+        }
+        private string ResolvePath(string path)
+        {
+            if (Path.IsPathRooted(path))
+                return path;
+
+            return Path.Combine(AppContext.BaseDirectory, path);
         }
 
     }
