@@ -37,7 +37,7 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\monitoring_service\Contracts\Contracts.csproj" />
+		<ProjectReference Include="..\..\Contracts\Contracts.csproj" />
 	</ItemGroup>
 	
 	
