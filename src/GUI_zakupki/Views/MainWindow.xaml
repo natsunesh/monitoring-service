@@ -4,9 +4,7 @@
         xmlns:vm="clr-namespace:GUI_zakupki.ViewModels"
         Title="Monitor Zakupki" Height="650" Width="900">
 
-	<Window.DataContext>
-		<vm:MainViewModel/>
-	</Window.DataContext>
+	
 
 	<Grid Margin="16">
 		<Grid.RowDefinitions>

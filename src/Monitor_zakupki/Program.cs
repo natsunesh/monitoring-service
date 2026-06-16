@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting.WindowsServices;
 using NLog;
 using NLog.Config;
 using NLog.Extensions.Logging;
+using Contracts.Interface;
 
 LogManager.Setup().LoadConfigurationFromFile(Path.Combine(AppContext.BaseDirectory, "nlog.config"));
 
@@ -31,6 +32,8 @@ builder.Services.Configure<UserSettings>(
 builder.Services.Configure<MainSettings>(
     builder.Configuration.GetSection("MainSettings"));
 
+builder.Services.AddHostedService<PipeServer>();
+builder.Services.AddSingleton<IConfigService, ConfigService>();
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
 

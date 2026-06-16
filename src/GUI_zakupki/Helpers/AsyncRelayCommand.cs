@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace GUI_zakupki.Helpers;
@@ -5,25 +7,28 @@ namespace GUI_zakupki.Helpers;
 public sealed class AsyncRelayCommand : ICommand
 {
     private readonly Func<Task> _execute;
+    private readonly Func<bool>? _canExecute;
     private bool _isExecuting;
 
-    public AsyncRelayCommand(Func<Task> execute)
+    public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null)
     {
-        _execute = execute;
+        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        _canExecute = canExecute;
     }
 
-    public bool CanExecute(object? parameter) => !_isExecuting;
+    public bool CanExecute(object? parameter)
+        => !_isExecuting && (_canExecute?.Invoke() ?? true);
 
     public async void Execute(object? parameter)
     {
-        if (_isExecuting) return;
-
-        _isExecuting = true;
-        RaiseCanExecuteChanged();
+        if (!CanExecute(parameter))
+            return;
 
         try
         {
-            await _execute();
+            _isExecuting = true;
+            RaiseCanExecuteChanged();
+            await _execute().ConfigureAwait(true);
         }
         finally
         {
@@ -34,5 +39,6 @@ public sealed class AsyncRelayCommand : ICommand
 
     public event EventHandler? CanExecuteChanged;
 
-    private void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    public void RaiseCanExecuteChanged()
+        => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 }

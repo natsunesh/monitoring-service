@@ -4,6 +4,7 @@ namespace Contracts
     {
         public const string GetSettings = "GetSettings";
         public const string UpdateSettings = "UpdateSettings";
+        public const string ApplySettings = "ApplySettings";
     }
 }
 
