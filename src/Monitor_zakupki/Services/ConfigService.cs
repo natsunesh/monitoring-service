@@ -1,7 +1,8 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Contracts;
-using Monitor_zakupki.Models;
 using Contracts.Interface;
+using Monitor_zakupki.Models;
 
 namespace Monitor_zakupki.Services;
 
@@ -13,7 +14,8 @@ public sealed class ConfigService : IConfigService
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
     };
 
     public ConfigService(IConfiguration configuration, IHostEnvironment env)
@@ -36,10 +38,65 @@ public sealed class ConfigService : IConfigService
 
         lock (_sync)
         {
-            _current = safe;
+            var root = LoadOrCreateRoot();
+
+            UpdateUserSettings(root, safe);
+            UpdateMainSettings(root, safe);
+            UpdateParserOptions(root, safe);
+            UpdateServiceState(root, safe);
+
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(ToFileModel(safe), JsonOptions));
+            File.WriteAllText(_filePath, root.ToJsonString(JsonOptions));
+
+            _current = safe;
         }
+    }
+
+    private JsonObject LoadOrCreateRoot()
+    {
+        if (!File.Exists(_filePath))
+            return new JsonObject();
+
+        var json = File.ReadAllText(_filePath);
+        return JsonNode.Parse(json)?.AsObject() ?? new JsonObject();
+    }
+
+    private static void UpdateUserSettings(JsonObject root, AppConfigDto dto)
+    {
+        var user = root["UserSettings"]?.AsObject() ?? new JsonObject();
+
+        user["InnList"] = JsonSerializer.SerializeToNode(dto.InnList ?? [], JsonOptions);
+        user["IntervalHours"] = dto.IntervalHours;
+
+        root["UserSettings"] = user;
+    }
+
+    private static void UpdateMainSettings(JsonObject root, AppConfigDto dto)
+    {
+        var main = root["MainSettings"]?.AsObject() ?? new JsonObject();
+
+        main["Test"] = dto.Test;
+
+        root["MainSettings"] = main;
+    }
+
+    private static void UpdateParserOptions(JsonObject root, AppConfigDto dto)
+    {
+        var parser = root["ParserOptions"]?.AsObject() ?? new JsonObject();
+
+        parser["FilePathToSavedHtml"] = dto.FilePathToSavedHtml;
+        parser["FilePathToLogs"] = dto.FilePathToLogs;
+        parser["FilePathToAppConfig"] = dto.FilePathToAppConfig;
+
+        root["ParserOptions"] = parser;
+    }
+
+    private static void UpdateServiceState(JsonObject root, AppConfigDto dto)
+    {
+        var state = root["ServiceState"]?.AsObject() ?? new JsonObject();
+
+        state["Enabled"] = dto.Test;
+        root["ServiceState"] = state;
     }
 
     private static AppConfigDto LoadFromFile(string path)
@@ -53,18 +110,15 @@ public sealed class ConfigService : IConfigService
         return FromFileModel(fileModel);
     }
 
-    private static AppConfigDto Normalize(AppConfigDto config)
+    private static AppConfigDto Normalize(AppConfigDto config) => new()
     {
-        return new AppConfigDto
-        {
-            InnList = config.InnList ?? [],
-            IntervalHours = config.IntervalHours <= 0 ? 1 : config.IntervalHours,
-            Test = config.Test,
-            FilePathToSavedHtml = config.FilePathToSavedHtml ?? "",
-            FilePathToLogs = config.FilePathToLogs ?? "",
-            FilePathToAppConfig = config.FilePathToAppConfig ?? ""
-        };
-    }
+        InnList = config.InnList ?? [],
+        IntervalHours = config.IntervalHours <= 0 ? 1 : config.IntervalHours,
+        Test = config.Test,
+        FilePathToSavedHtml = config.FilePathToSavedHtml ?? "",
+        FilePathToLogs = config.FilePathToLogs ?? "",
+        FilePathToAppConfig = config.FilePathToAppConfig ?? ""
+    };
 
     private static AppConfigDto Clone(AppConfigDto source) => new()
     {
@@ -84,24 +138,5 @@ public sealed class ConfigService : IConfigService
         FilePathToSavedHtml = file.ParserOptions?.FilePathToSavedHtml ?? "",
         FilePathToLogs = file.ParserOptions?.FilePathToLogs ?? "",
         FilePathToAppConfig = file.ParserOptions?.FilePathToAppConfig ?? ""
-    };
-
-    private static AppConfigFileDto ToFileModel(AppConfigDto dto) => new()
-    {
-        UserSettings = new UserSettings
-        {
-            InnList = dto.InnList ?? [],
-            IntervalHours = dto.IntervalHours
-        },
-        MainSettings = new MainSettings
-        {
-            Test = dto.Test
-        },
-        ParserOptions = new ParserOptions
-        {
-            FilePathToSavedHtml = dto.FilePathToSavedHtml,
-            FilePathToLogs = dto.FilePathToLogs,
-            FilePathToAppConfig = dto.FilePathToAppConfig
-        }
     };
 }
