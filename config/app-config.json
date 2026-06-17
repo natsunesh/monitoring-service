@@ -15,7 +15,7 @@
   },
   "ParserOptions": {
     "FilePathToAppConfig": "config/app-config.json",
-    "FilePathToLogs": "monitring_log/Logs.txt",
+    "FilePathToLogs": "monitoring_log/Logs.txt",
     "FilePathToSavedHtml": "config/saved-html.json"
   }
 }

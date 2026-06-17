@@ -34,21 +34,19 @@ public sealed class ConfigService : IConfigService
 
     public void Update(AppConfigDto config)
     {
-        var safe = Normalize(config);
-
         lock (_sync)
         {
             var root = LoadOrCreateRoot();
 
-            UpdateUserSettings(root, safe);
-            UpdateMainSettings(root, safe);
-            UpdateParserOptions(root, safe);
-            UpdateServiceState(root, safe);
+            UpdateUserSettings(root, config);
+            UpdateMainSettings(root, config);
+            UpdateEmail(root, config);
+            UpdateStatus(root, config);
 
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
             File.WriteAllText(_filePath, root.ToJsonString(JsonOptions));
 
-            _current = safe;
+            _current = Merge(_current, config);
         }
     }
 
@@ -61,42 +59,41 @@ public sealed class ConfigService : IConfigService
         return JsonNode.Parse(json)?.AsObject() ?? new JsonObject();
     }
 
-    private static void UpdateUserSettings(JsonObject root, AppConfigDto dto)
+    private static void UpdateUserSettings(JsonObject root, AppConfigDto config)
     {
         var user = root["UserSettings"]?.AsObject() ?? new JsonObject();
 
-        user["InnList"] = JsonSerializer.SerializeToNode(dto.InnList ?? [], JsonOptions);
-        user["IntervalHours"] = dto.IntervalHours;
+        if (config.InnList is not null && config.InnList.Length > 0)
+            user["InnList"] = JsonSerializer.SerializeToNode(config.InnList, JsonOptions);
+
+        if (config.IntervalHours > 0)
+            user["IntervalHours"] = config.IntervalHours;
 
         root["UserSettings"] = user;
     }
 
-    private static void UpdateMainSettings(JsonObject root, AppConfigDto dto)
+    private static void UpdateMainSettings(JsonObject root, AppConfigDto config)
     {
         var main = root["MainSettings"]?.AsObject() ?? new JsonObject();
-
-        main["Test"] = dto.Test;
-
+        main["Test"] = config.Test;
         root["MainSettings"] = main;
     }
 
-    private static void UpdateParserOptions(JsonObject root, AppConfigDto dto)
+    private static void UpdateEmail(JsonObject root, AppConfigDto config)
     {
-        var parser = root["ParserOptions"]?.AsObject() ?? new JsonObject();
+        if (string.IsNullOrWhiteSpace(config.SmtpTo))
+            return;
 
-        parser["FilePathToSavedHtml"] = dto.FilePathToSavedHtml;
-        parser["FilePathToLogs"] = dto.FilePathToLogs;
-        parser["FilePathToAppConfig"] = dto.FilePathToAppConfig;
-
-        root["ParserOptions"] = parser;
+        var email = root["Email"]?.AsObject() ?? new JsonObject();
+        email["SmtpTo"] = config.SmtpTo;
+        root["Email"] = email;
     }
 
-    private static void UpdateServiceState(JsonObject root, AppConfigDto dto)
+    private static void UpdateStatus(JsonObject root, AppConfigDto config)
     {
-        var state = root["ServiceState"]?.AsObject() ?? new JsonObject();
-
-        state["Enabled"] = dto.Test;
-        root["ServiceState"] = state;
+        var service = root["Service"]?.AsObject() ?? new JsonObject();
+        service["ServiceStatus"] = config.ServiceStatus.ToString();
+        root["Service"] = service;
     }
 
     private static AppConfigDto LoadFromFile(string path)
@@ -105,38 +102,53 @@ public sealed class ConfigService : IConfigService
             return new AppConfigDto();
 
         var json = File.ReadAllText(path);
-        var fileModel = JsonSerializer.Deserialize<AppConfigFileDto>(json) ?? new AppConfigFileDto();
+        var root = JsonSerializer.Deserialize<ConfigFileDto>(json) ?? new ConfigFileDto();
 
-        return FromFileModel(fileModel);
+        return new AppConfigDto
+        {
+            InnList = root.UserSettings?.InnList ?? [],
+            IntervalHours = root.UserSettings?.IntervalHours ?? 24,
+            Test = root.MainSettings?.Test ?? false,
+            ServiceStatus = Enum.TryParse<ServiceStatus>(root.Service?.ServiceStatus, out var status)
+                ? status
+                : ServiceStatus.Stopped,
+            SmtpTo = root.Email?.SmtpTo
+        };
     }
-
-    private static AppConfigDto Normalize(AppConfigDto config) => new()
-    {
-        InnList = config.InnList ?? [],
-        IntervalHours = config.IntervalHours <= 0 ? 1 : config.IntervalHours,
-        Test = config.Test,
-        FilePathToSavedHtml = config.FilePathToSavedHtml ?? "",
-        FilePathToLogs = config.FilePathToLogs ?? "",
-        FilePathToAppConfig = config.FilePathToAppConfig ?? ""
-    };
 
     private static AppConfigDto Clone(AppConfigDto source) => new()
     {
         InnList = source.InnList.ToArray(),
         IntervalHours = source.IntervalHours,
         Test = source.Test,
-        FilePathToSavedHtml = source.FilePathToSavedHtml,
-        FilePathToLogs = source.FilePathToLogs,
-        FilePathToAppConfig = source.FilePathToAppConfig
+        ServiceStatus = source.ServiceStatus,
+        SmtpTo = source.SmtpTo
     };
 
-    private static AppConfigDto FromFileModel(AppConfigFileDto file) => new()
+    private static AppConfigDto Merge(AppConfigDto current, AppConfigDto update) => new()
     {
-        InnList = file.UserSettings?.InnList ?? [],
-        IntervalHours = file.UserSettings?.IntervalHours ?? 24,
-        Test = file.MainSettings?.Test ?? false,
-        FilePathToSavedHtml = file.ParserOptions?.FilePathToSavedHtml ?? "",
-        FilePathToLogs = file.ParserOptions?.FilePathToLogs ?? "",
-        FilePathToAppConfig = file.ParserOptions?.FilePathToAppConfig ?? ""
+        InnList = update.InnList.Length > 0 ? update.InnList : current.InnList,
+        IntervalHours = update.IntervalHours > 0 ? update.IntervalHours : current.IntervalHours,
+        Test = update.Test,
+        ServiceStatus = update.ServiceStatus,
+        SmtpTo = !string.IsNullOrWhiteSpace(update.SmtpTo) ? update.SmtpTo : current.SmtpTo
     };
+}
+
+public sealed class ConfigFileDto
+{
+    public UserSettings? UserSettings { get; set; }
+    public MainSettings? MainSettings { get; set; }
+    public EmailSettings? Email { get; set; }
+    public ServiceSettings? Service { get; set; }
+}
+
+public sealed class EmailSettings
+{
+    public string? SmtpTo { get; set; }
+}
+
+public sealed class ServiceSettings
+{
+    public string? ServiceStatus { get; set; }
 }
