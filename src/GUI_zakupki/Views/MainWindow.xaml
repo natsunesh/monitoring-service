@@ -31,7 +31,7 @@
                                  Height="14"
                                  Margin="0,0,8,0"
                                  VerticalAlignment="Center"
-                                 Fill="{Binding ServiceEnabled, Converter={StaticResource ServiceStatusBrushConverter}}"/>
+                                 Fill="{Binding ServiceState, Converter={StaticResource ServiceStatusBrushConverter}}"/>
 						<TextBlock Text="{Binding ServiceStatusText}"
                                    VerticalAlignment="Center"
                                    FontWeight="SemiBold"/>
@@ -58,6 +58,10 @@
 					<StackPanel Margin="8">
 						<TextBlock Text="Interval hours"/>
 						<TextBox Text="{Binding IntervalHours, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+
+						<TextBlock Text="Notification email"/>
+						<TextBox Text="{Binding SmtpTo, UpdateSourceTrigger=PropertyChanged}"
+								 Margin="0,0,0,8"/>
 
 						<CheckBox Content="Test mode"
                                   IsChecked="{Binding Test}"

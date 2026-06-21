@@ -21,6 +21,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _status = "Ready";
     private string? _newInn;
     private string? _selectedInn;
+    private string? _smtpTo;
+
 
     public ObservableCollection<string> InnList { get; } = new();
 

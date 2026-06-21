@@ -15,15 +15,17 @@ public sealed class PipeServer : IHostedService
     private readonly ILogger<PipeServer> _logger;
     private CancellationTokenSource? _cts;
     private Task? _runTask;
+    private readonly IServiceStatusReader _serviceStatusReader;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public PipeServer(IConfigService configService, ILogger<PipeServer> logger)
+    public PipeServer(IConfigService configService, IServiceStatusReader serviceStatusReader, ILogger<PipeServer> logger)
     {
         _configService = configService;
+        _serviceStatusReader = serviceStatusReader;
         _logger = logger;
         _logger.LogInformation("PipeServer created");
     }
@@ -159,7 +161,7 @@ public sealed class PipeServer : IHostedService
             PipeCommands.GetSettings => Task.FromResult(new PipeResponse
             {
                 Success = true,
-                Payload = _configService.Get()
+                Payload = GetCurrentConfig()
             }),
 
             PipeCommands.UpdateSettings when request.Payload is not null => UpdateAsync(request.Payload),
@@ -180,13 +182,21 @@ public sealed class PipeServer : IHostedService
 
     private Task<PipeResponse> UpdateAsync(AppConfigDto dto)
     {
-        _logger.LogInformation("UpdateAsync started");
         _configService.Update(dto);
+
+        var result = GetCurrentConfig();
 
         return Task.FromResult(new PipeResponse
         {
             Success = true,
-            Payload = _configService.Get()
+            Payload = result
         });
+    }
+
+    private AppConfigDto GetCurrentConfig()
+    {
+        var dto = _configService.Get();
+        dto.ServiceStatus = _serviceStatusReader.ReadServiceStatus("Monitor_zakupki");
+        return dto;
     }
 }

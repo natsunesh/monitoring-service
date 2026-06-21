@@ -36,6 +36,7 @@ builder.Services.AddHostedService<PipeServer>();
 builder.Services.AddSingleton<IConfigService, ConfigService>();
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
+builder.Services.AddSingleton<IServiceStatusReader, ServiceStatusReader>();
 
 if (builder.Configuration.GetValue<bool>("MainSettings:Test"))
 {
