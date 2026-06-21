@@ -21,7 +21,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _status = "Ready";
     private string? _newInn;
     private string? _selectedInn;
-    private bool? _serviceEnabled;
 
     public ObservableCollection<string> InnList { get; } = new();
 
@@ -87,18 +86,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool? ServiceEnabled
-    {
-        get => _serviceEnabled;
-        set
-        {
-            if (_serviceEnabled == value) return;
-            _serviceEnabled = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(ServiceStatusText));
-            _logger.LogInformation("ServiceEnabled = {Value}", value);
-        }
-    }
+
 
 
 
