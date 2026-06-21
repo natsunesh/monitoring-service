@@ -81,12 +81,21 @@ public sealed class ConfigService : IConfigService
 
     private static void UpdateEmail(JsonObject root, AppConfigDto config)
     {
-        if (string.IsNullOrWhiteSpace(config.SmtpTo))
-            return;
+        var mainSettings = root["MainSettings"]?.AsObject();
+        if (mainSettings is null)
+        {
+            mainSettings = new JsonObject();
+            root["MainSettings"] = mainSettings;
+        }
 
-        var email = root["Email"]?.AsObject() ?? new JsonObject();
-        email["SmtpTo"] = config.SmtpTo;
-        root["Email"] = email;
+        var email = mainSettings["Email"]?.AsObject();
+        if (email is null)
+        {
+            email = new JsonObject();
+            mainSettings["Email"] = email;
+        }
+
+        email["SmtpTo"] = config.SmtpTo ?? string.Empty;
     }
 
     private static void UpdateStatus(JsonObject root, AppConfigDto config)

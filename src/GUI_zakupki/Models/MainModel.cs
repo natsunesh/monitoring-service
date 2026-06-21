@@ -23,7 +23,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string? _selectedInn;
     private string? _smtpTo;
 
-
     public ObservableCollection<string> InnList { get; } = new();
 
     public int IntervalHours
@@ -88,9 +87,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-
-
-
+    public string? SmtpTo
+    {
+        get => _smtpTo;
+        set
+        {
+            if (_smtpTo == value) return;
+            _smtpTo = value;
+            OnPropertyChanged();
+            _logger.LogInformation("SmtpTo changed to {Value}", value);
+        }
+    }
 
     public ServiceStatus ServiceState
     {
@@ -134,6 +141,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private async Task LoadAsync()
     {
         Status = "Loading...";
+
         try
         {
             var response = await _pipeClient.SendAsync(new PipeRequest
@@ -159,9 +167,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private async Task SaveAsync()
     {
         Status = "Saving...";
+
         try
         {
             var dto = Collect();
+
             var response = await _pipeClient.SendAsync(new PipeRequest
             {
                 Command = PipeCommands.UpdateSettings,
@@ -215,6 +225,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         IntervalHours = (int)dto.IntervalHours;
         Test = dto.Test;
         ServiceState = dto.ServiceStatus;
+        SmtpTo = dto.SmtpTo;
     }
 
     private AppConfigDto Collect() => new()
@@ -222,7 +233,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         InnList = InnList.ToArray(),
         IntervalHours = IntervalHours,
         Test = Test,
-        ServiceStatus = ServiceState
+        ServiceStatus = ServiceState,
+        SmtpTo = SmtpTo
     };
 
     public event PropertyChangedEventHandler? PropertyChanged;

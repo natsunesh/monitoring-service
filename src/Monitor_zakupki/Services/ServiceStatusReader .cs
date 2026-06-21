@@ -4,7 +4,7 @@ using Contracts.Interface;
 
 namespace Monitor_zakupki.Services;
 
-public sealed class ServiceStatusReader : IServiceStatusReader
+ sealed class ServiceStatusReader : IServiceStatusReader
 {
     public ServiceStatus ReadServiceStatus(string serviceName)
     {
